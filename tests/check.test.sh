@@ -3,6 +3,8 @@
 # touches the real project. Fake keys are assembled at runtime so this file never contains one.
 set -uo pipefail
 KIT="$(cd "$(dirname "$0")/.." && pwd)"
+# Run with Python's bytecode cache on, as CI and most machines have it.
+unset PYTHONDONTWRITEBYTECODE
 fail=0
 new_repo() {
   local d; d="$(mktemp -d)"
@@ -34,6 +36,9 @@ scripts/check >/dev/null 2>&1; expect "node: failing test fails" nonzero $?
 d=$(new_repo); cd "$d"; mkdir tests
 printf 'import unittest\nclass T(unittest.TestCase):\n    def test_add(self): self.assertEqual(1+1, 2)\n' > tests/test_a.py
 scripts/check >/dev/null 2>&1; expect "python: passing test passes" 0 $?
+# The rewrite has the same size and lands in the same second, so Python would reuse the cached
+# passing version; clearing the cache makes the failing version actually run.
+rm -rf tests/__pycache__
 printf 'import unittest\nclass T(unittest.TestCase):\n    def test_add(self): self.assertEqual(1+1, 3)\n' > tests/test_a.py
 scripts/check >/dev/null 2>&1; expect "python: failing test fails" nonzero $?
 
