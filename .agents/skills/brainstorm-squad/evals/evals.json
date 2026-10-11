@@ -1,0 +1,29 @@
+{
+  "skill_name": "brainstorm-squad",
+  "evals": [
+    {
+      "id": 0,
+      "name": "oat-milk-coffee-naming",
+      "prompt": "brainstorm ideas for a name for my new oat-milk coffee brand. it's a small batch thing, ethical sourcing, aimed at design-conscious millennials in east london",
+      "expected_output": "A ranked top-5 list of brand name ideas, each with a one-line rationale, that reflect the oat-milk + coffee + ethical + design-conscious-east-london framing and span clearly different naming angles (e.g. literal, abstract, playful, place-based).",
+      "files": [],
+      "expectations": []
+    },
+    {
+      "id": 1,
+      "name": "empty-office-gym",
+      "prompt": "help me brainstorm ways to get more people to actually use the gym at my office — we built a nice one but it's basically empty",
+      "expected_output": "A ranked top-5 list of distinct interventions to drive office-gym usage, each with a one-line rationale, covering genuinely different angles (e.g. a quick pragmatic fix, a behavioral/social nudge, a bold rethink, a human-empathy angle) rather than five variants of 'send reminder emails'.",
+      "files": [],
+      "expectations": []
+    },
+    {
+      "id": 2,
+      "name": "sister-30th-birthday",
+      "prompt": "brainstorm ideas for a 30th birthday party for my sister who loves hiking and 90s hip hop",
+      "expected_output": "A ranked top-5 list of party concepts, each with a one-line rationale, that genuinely weave in BOTH the hiking and 90s-hip-hop interests and span different angles (low-key vs ambitious, conventional vs unexpected) rather than five near-identical 'hike then party' ideas.",
+      "files": [],
+      "expectations": []
+    }
+  ]
+}

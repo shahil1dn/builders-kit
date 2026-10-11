@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Full check before anything leaves this machine. CI runs the same command again.
+exec "$(git rev-parse --show-toplevel)/scripts/check"

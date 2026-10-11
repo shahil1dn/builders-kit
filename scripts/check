@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# check — the one command that proves this project is OK. Agents, git hooks and CI all run this.
+#
+#   scripts/check                    secret scan + this project's tests and lint
+#   scripts/check --secrets-only     secret scan only (used by the pre-commit hook: must stay fast)
+#   scripts/check --staged           scan only what is staged for commit, not every tracked file
+#
+# Exit code 0 means pass, anything else means fail. The last line always says which.
+# Works on the macOS default bash (3.2): no associative arrays, no mapfile.
+set -uo pipefail
+
+cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" || exit 2
+
+secrets_only=0; staged=0
+for arg in "$@"; do
+  case "$arg" in
+    --secrets-only) secrets_only=1 ;;
+    --staged) staged=1 ;;
+    -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
+    *) echo "check: unknown option $arg" >&2; exit 2 ;;
+  esac
+done
+
+failed=""
+log="$(mktemp -t check.XXXXXX)"
+trap 'rm -f "$log"' EXIT
+
+pass() { printf '  ok    %s\n' "$1"; }
+fail() { printf '  FAIL  %s\n' "$1"; failed="$failed $1"; }
+
+# Run a step with its output captured, so a failure shows its tail and a pass stays quiet.
+step() {
+  local name="$1"; shift
+  if "$@" >"$log" 2>&1; then pass "$name"
+  else fail "$name"; tail -20 "$log" | sed 's/^/        /'; fi
+}
+
+# --- secrets ----------------------------------------------------------------------------------
+# gitleaks when installed (CI always installs it); otherwise a built-in scan for the commonest
+# key shapes, so a student without gitleaks still gets a real check rather than a silent skip.
+key_patterns='AKIA[0-9A-Z]{16}|-----BEGIN ([A-Z]+ )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{36,}|sk-(ant-|proj-)?[A-Za-z0-9_-]{20,}|sk_live_[A-Za-z0-9]{16,}|xox[abprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35}'
+
+files_to_scan() {
+  if [ "$staged" -eq 1 ]; then git diff --cached --name-only --diff-filter=ACMR
+  else git ls-files; fi
+}
+
+env_files_committed() {
+  # A real .env file must never be committed; .env.example (placeholders only) is fine.
+  files_to_scan | grep -E '(^|/)\.env($|\.)' | grep -vE '\.example$' && return 1
+  return 0
+}
+
+builtin_secret_scan() {
+  local hits=""
+  while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    if [ "$staged" -eq 1 ]; then
+      git show ":$f" 2>/dev/null | grep -qE "$key_patterns" && hits="$hits $f"
+    else
+      grep -qE "$key_patterns" "$f" 2>/dev/null && hits="$hits $f"
+    fi
+  done < <(files_to_scan)
+  [ -z "$hits" ] && return 0
+  echo "Possible secret in:$hits"
+  echo "Move it to an environment variable (see .env.example) and remove it from the file."
+  return 1
+}
+
+gitleaks_scan() {
+  if [ "$staged" -eq 1 ]; then gitleaks git --staged --redact --no-banner
+  else gitleaks dir . --redact --no-banner; fi
+}
+
+step "no .env files committed" env_files_committed
+if command -v gitleaks >/dev/null 2>&1; then
+  step "secret scan (gitleaks)" gitleaks_scan
+else
+  step "secret scan (built-in; install gitleaks for a deeper scan)" builtin_secret_scan
+fi
+
+# --- tests and lint for whichever stack this is --------------------------------------------------
+if [ "$secrets_only" -eq 0 ]; then
+  ran_tests=0
+
+  if [ -f package.json ]; then
+    has_script() { node -e "const s=require('./package.json').scripts||{};process.exit(s[process.argv[1]]&&!/no test specified/.test(s[process.argv[1]])?0:1)" "$1" 2>/dev/null; }
+    [ -d node_modules ] || step "npm install" npm install --no-audit --no-fund
+    for script in lint typecheck test; do
+      if has_script "$script"; then step "npm run $script" npm run "$script"; [ "$script" = test ] && ran_tests=1; fi
+    done
+  fi
+
+  is_python() {
+    [ -f pyproject.toml ] || [ -f requirements.txt ] || ls ./*.py >/dev/null 2>&1 || ls tests/*.py >/dev/null 2>&1
+  }
+  if is_python; then
+    if python3 -c "import pytest" 2>/dev/null; then step "pytest" python3 -m pytest -q; ran_tests=1
+    elif ls test_*.py >/dev/null 2>&1 || ls tests/test_*.py >/dev/null 2>&1; then step "unittest" python3 -m unittest discover -q -s "$( [ -d tests ] && echo tests || echo . )"; ran_tests=1
+    fi
+    if command -v ruff >/dev/null 2>&1; then step "ruff" ruff check .; fi
+  fi
+
+  [ "$ran_tests" -eq 1 ] || echo "  note  no tests found yet — add some, then this command proves them"
+  # Small models often skip setup unless asked; this note reaches them whenever they run the check.
+  if grep -q '^## The questions' SETUP.md 2>/dev/null; then
+    echo "  note  setup isn't done — ask the person the questions in SETUP.md, or they can say \"set up this project\""
+  fi
+fi
+
+if [ -z "$failed" ]; then echo "CHECK PASSED"; exit 0; fi
+echo "CHECK FAILED:$failed"
+exit 1

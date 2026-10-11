@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Fast: secrets only, on what is being committed. The full check runs before push.
+exec "$(git rev-parse --show-toplevel)/scripts/check" --secrets-only --staged

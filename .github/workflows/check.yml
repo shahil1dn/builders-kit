@@ -1,0 +1,34 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Pinned to a commit, not a tag: a tag can be moved to point at different code later.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # gitleaks makes the secret scan deeper than the built-in one. The checksum stops a
+      # tampered download from running.
+      - name: Install gitleaks
+        run: |
+          curl -sSfL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks && sudo mv gitleaks /usr/local/bin/ && rm gitleaks.tar.gz
+
+      - name: scripts/check
+        run: scripts/check
+
+      # The kit's own tests only run in the kit itself (a template repo), not in projects made
+      # from it, where those files are yours to keep or delete.
+      - name: Kit tests
+        if: github.event.repository.is_template
+        run: |
+          for t in tests/*.test.sh; do bash "$t" || exit 1; done
+          node --test tests/opencode-guards.test.mjs

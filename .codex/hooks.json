@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'exec \"$(git rev-parse --show-toplevel)\"/.agents/hooks/receipt.sh reset'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'exec \"$(git rev-parse --show-toplevel)\"/.agents/hooks/receipt.sh record'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'exec \"$(git rev-parse --show-toplevel)\"/.agents/hooks/masked-verdict.sh'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'exec \"$(git rev-parse --show-toplevel)\"/.agents/hooks/receipt.sh stop'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
