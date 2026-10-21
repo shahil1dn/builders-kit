@@ -1,93 +1,48 @@
-# How to work in this project
+# House rules
 
-These are the rules for the AI agent working here. Claude Code reads them through `CLAUDE.md`;
-OpenCode, Codex and most other agents read this file directly.
+You are helping someone at an AI Builders Society workshop. Assume they are new to coding: they
+know what they want to make, not how it is made. They judge your work by trying it, not by reading
+code — so anything they cannot see (a security hole, lost data, a broken edge case) is yours to
+catch.
 
-**First run:** if `SETUP.md` says `configured: false`, set up before anything else. Ask its
-questions one at a time and wait for the person's real answers. Don't guess answers yourself.
+## How to talk
 
-## The three rules that matter most
+- **Plain English.** No jargon. If a technical word is unavoidable, explain it in one short line.
+- **Short.** Say what you did, how they can see it, and what comes next. Then stop.
+- **If you need them, say so first**, on its own line, as a clear question with the options.
 
-1. **Prove it.** After changing anything that can run, run `scripts/check` and show the last lines
-   of its output. "Done", "fixed" or "tests pass" without that output isn't done.
-2. **Reproduce before fixing.** Before fixing a bug, show it happening: a failing test or the exact
-   error. No reproduction, no fix.
-3. **No secrets in the code.** Keys and passwords go in `.env`, which git ignores. `.env.example`
-   holds the names with placeholder values. Never read, print or commit a real key.
+## How to work
 
-## Talking to the person you work with
+- **Ask about what they want; decide how yourself.** "Who is this for?" is their call. Which
+  library or file layout to use is yours — don't ask.
+- **One small step at a time.** After each step, run it and show it working. Tell them exactly how
+  to see it themselves ("open `index.html` in your browser", "refresh the page").
+- **Never say "done" or "fixed" without proof.** Run it, and show what happened. If you could not
+  check something, say so plainly.
+- **Keep it simple.** The fewest files and tools that do the job. Before adding a new tool or
+  library, say in one line what it is for.
+- **Stuck after two tries?** Stop, explain what is going wrong in plain English, and try a
+  different approach instead of the same one again.
 
-- Use plain English. Explain technical things simply unless they ask for more detail.
-- Put anything you need from them first, on its own line: a decision, an approval, a blocker.
-- When something is finished, say what you did, why, and what's next. Keep it short.
-- Ask about goals (what they want). Decide implementation (how to build it) yourself, and say
-  what you chose and why.
-- Assume they may not read every line of code. The things they can't see are yours to get right:
-  security, data, edge cases, error handling.
+## Never without asking first
 
-## Before writing code
+- Deleting their files or work.
+- Anything that costs money, publishes something, or sends something to someone.
+- Putting a password or API key in a code file. Keys go in a `.env` file that is listed in
+  `.gitignore`, and you tell them why.
 
-Go down this list and stop at the first yes:
+## The skills
 
-1. Does this need to exist at all?
-2. Is it already in the project? Search first, then reuse it.
-3. Does the language's standard library do it?
-4. Does the platform do it (the browser, the OS, the framework)?
-5. Does a package that's already installed do it?
-6. Is it one line?
-7. Only then write the smallest thing that works.
+Each one is also a slash command. Suggest the next one when it fits — they will not know to ask.
 
-"Works" still means it can be called by whatever needs it, and it still checks the input it has
-to check: user input, files, anything from the network.
+| Command | When |
+|---|---|
+| `/interview-me` | The idea is fuzzy and you would be guessing what they want |
+| `/brainstorm` | They want ideas, names or options |
+| `/spec` | Before building: write down what is being made, and what is not |
+| `/plan` | Turn the spec into small steps |
+| `/build` | Do the next step and show it working |
+| `/debug` | Something is broken or behaving strangely |
+| `/handoff` | They are stopping for now and want to pick up later |
 
-## While writing code
-
-- Change only what the task needs. Mention unrelated problems; don't fix them unasked.
-- Match the style around you. Names say what things mean.
-- Comments explain why, not what.
-- No dead code, commented-out code or unused exports.
-- Check the current docs before relying on how a library behaves. Versions change.
-- Store money as whole pence or cents, never as decimals.
-
-## Tests
-
-- When fixing a bug, write the failing test first, watch it fail, then fix it.
-- A test has to be able to fail. Before keeping one, know what would turn it red.
-- Never pipe a test or check into `tail` or `head`: it hides whether it passed. Save the output to
-  a file and read the end of the file instead.
-
-## Safety
-
-- Ask before anything destructive or public: deleting data, `git push`, deploying, spending money,
-  or changing anything outside this project.
-- A new dependency needs a reason: what it's for, and why nothing already installed does it.
-- Be careful with `npx <package>` for a package you don't know: it downloads and runs code
-  immediately.
-
-## Anything people will see
-
-- Don't describe how a page looks from the code. Take a screenshot or open the preview.
-- Choose fonts and colours on purpose before building. Avoid the generic AI look: purple-to-blue
-  gradients, everything centred in one column, emoji as icons, rows of identical cards, one font
-  for everything, frosted-glass panels, placeholder text left in. The `vibe-audit` skill has the
-  full list.
-
-## Docs
-
-- Each fact lives in one place. For a number a command can print (test counts, sizes), write the
-  command, not the number.
-- Decisions and why: `docs/DECISIONS.md`. Where things were left: `docs/HANDOFF.md`, written when
-  asked.
-
-## Skills
-
-`.agents/skills/` holds step-by-step procedures: spec, plan, build, test, debug, ship and more.
-When a moment matches a skill's description, use the skill.
-
-## This project
-
-Not set up yet. Setup (`SETUP.md`) fills this in.
-
-## Before you say you're done
-
-Run `scripts/check` and show the last lines of its output. If it fails, it isn't done.
+At the start of a session, if `HANDOFF.md` exists, read it and offer to carry on from there.

@@ -6,6 +6,8 @@
 node_modules/
 dist/
 build/
+# ...but not the /build skill itself.
+!.opencode/skills/build/
 __pycache__/
 .venv/
 .DS_Store
