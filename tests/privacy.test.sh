@@ -14,7 +14,9 @@ scan() { # label pattern(ERE, case-insensitive)
   local files hist
   # --untracked: new files are checked before they're committed, not after.
   files="$(git grep --untracked -n -i -I -E "$2" -- . "${EXCLUDE[@]}" 2>/dev/null)"
-  hist="$(git log --all -p --format= -- . "${EXCLUDE[@]}" 2>/dev/null | grep -i -E "^\+.*($2)" | head -3)"
+  # HEAD, not --all: the workshop branch names the society on purpose, and only this branch's
+  # history ships in the template.
+  hist="$(git log HEAD -p --format= -- . "${EXCLUDE[@]}" 2>/dev/null | grep -i -E "^\+.*($2)" | head -3)"
   if [ -z "$files$hist" ]; then ok "$1"; else bad "$1"; printf '%s\n%s\n' "$files" "$hist" | grep -v '^$' | head -5 | sed 's/^/        /'; fi
 }
 scan "no personal home-folder paths" '/(Users|home)/[a-z][a-z0-9_-]+/'
