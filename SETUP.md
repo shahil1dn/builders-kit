@@ -28,8 +28,9 @@ then rewrites this file with your answers. After that this file is your profile:
 
 **1. What are you building, and who is it for?** One or two sentences is plenty.
 
-**2. Which language?** Node (JavaScript or TypeScript) or Python. Another language is fine, but
-`scripts/check` will only run the secret scan for it until someone adds that language's tests.
+**2. Which language?** Any language works. For Node (JavaScript or TypeScript) and Python,
+`scripts/check` finds and runs the tests by itself. For anything else it runs the secret scan, and
+once the project has tests the agent adds their command to `scripts/check`.
 
 **3. Which AI tool are you using?** Claude Code, OpenCode, Codex, or something else. More than one
 is fine.
