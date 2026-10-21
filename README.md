@@ -15,8 +15,17 @@ It works with **Claude Code**, **OpenCode** and **Codex**, in any programming la
 
 ## Start a project
 
-1. On GitHub, click **Use this template** → **Create a new repository**, then clone it.
-   (Or download the ZIP and run `git init` in the folder.)
+1. **Get your own copy.** Pick one:
+   - **Building something you'll keep:** click **Use this template** → **Create a new
+     repository**, then clone your new repository. It's yours, with a clean history, and
+     `git push` goes to it.
+   - **Just trying it out:** download the ZIP (green **Code** button → **Download ZIP**) and unzip
+     it. Setup turns the folder into a git repository for you.
+
+   Cloning this repository directly works too, but your project then stays linked to
+   builders-kit: pushes try to go here instead of to your own repository. If you do, ask the agent
+   to "disconnect this from builders-kit" before you put it on GitHub.
+
 2. Open the folder in your AI tool (setup for each tool is below).
 3. Send this as your first message:
 
